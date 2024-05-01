@@ -1,6 +1,8 @@
 # A-tool
 search from access
+
 从access的questions项和answers项查找对应的题目和答案，并输出在窗口里
+
 配套有从excel表导入到access表的程序
 
 截图查找程序：
