@@ -3,23 +3,15 @@
 # @PyCharm   :2023.3.4.PY-233.14475.56
 # @Python    :3.12
 # @FileName  :ui.py
-# @Time      :2024/4/30 下午14:10
+# @Time      :2024/5/2 下午11:30
 # @Author    :997
 # @E-mail    :A997sama@outlook.com
 # --------------------------------
 
 import tkinter as tk
-from tkinter import ttk
-from tkinter import filedialog
-import pyodbc
-import io
-import base64
-import threading
-import Baidu_Api_ocr
+from tkinter import ttk, filedialog, font
 from PIL import ImageGrab
-import hashlib
-import time
-import clipboard
+import pyodbc, io, base64, threading, Baidu_Api_ocr, hashlib, time, clipboard
 
 event = threading.Event()  # 检测状态
 monitoring_active = False
@@ -46,13 +38,9 @@ def get_image_hash():
 def create_ui():
     window = tk.Tk()
     window.title('A Tool')
-    window.geometry('280x380')
+    window.geometry("280x240+50+50")
     window.attributes('-topmost', True)
-    global lab_file_path
-    global combo
-    global btn3
-    global lab4
-    global text_box
+    global lab_file_path, combo, btn3, lab4, text_box, text_box_question, text_box_answer
 
     lab1 = tk.Label(window, text="第一步", width=5, height=1)
     lab2 = tk.Label(window, text="第二步", width=5, height=1)
@@ -81,8 +69,16 @@ def create_ui():
     lab4 = tk.Label(window, text="状态：关闭", width=13, height=1)
     lab4.grid(row=2, column=2, padx=10, pady=10)
 
-    text_box = tk.Text(window, width=36, height=17)
-    text_box.grid(row=3, column=0, padx=10, pady=10, columnspan=3, rowspan=2)
+    text_font = font.Font(size=10)
+
+    text_box_question = tk.Text(window, width=36, height=3, font=text_font)
+    text_box_question.grid(row=3, column=0, padx=10, columnspan=3, rowspan=1)
+
+    text_box_answer = tk.Text(window, width=36, height=3, font=text_font)
+    text_box_answer.grid(row=4, column=0, padx=10, pady=5, columnspan=3, rowspan=1)
+
+    text_box = tk.Text(window, width=36, height=16)
+    text_box.grid(row=0, column=3, padx=10, pady=10, columnspan=1, rowspan=5)
 
     window.mainloop()
 
@@ -123,6 +119,16 @@ def switch_monitoring_status():
         lab4.config(text="状态：关闭", foreground="red")
         output_message("\n关闭监控", text_box)
         event.set()  # 设置事件，通知监控程序停止运行
+
+
+def output_question(question):
+    text_box_question.delete(1.0, tk.END)  # 清空文本框内容
+    text_box_question.insert(tk.END, question)  # 插入新内容
+
+
+def output_answer(answer):
+    text_box_answer.delete(1.0, tk.END)  # 清空文本框内容
+    text_box_answer.insert(tk.END, answer)
 
 
 def output_message(message, text_box):
@@ -182,6 +188,8 @@ def search_answer(question, text_box=None):
     rows = cursor.fetchall()
     if rows:  # 检索结果
         for row in rows:
+            output_question(row.questions)
+            output_answer(row.answers)
             output_message(f"\n问题：{row.questions}\n答案：{row.answers}", text_box)
             break
     else:
